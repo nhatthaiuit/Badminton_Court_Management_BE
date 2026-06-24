@@ -11,11 +11,13 @@ const authRoutes = require("./auth");
 const courtRoutes = require("./courts");
 const bookingRoutes = require("./bookings");
 const userRoutes = require("./users");
+const statsRoutes = require("./stats");
 
 // Mount sub-routers onto their respective path prefixes
-router.use("/auth", authRoutes);       // Authentication: login, register, profile
-router.use("/courts", courtRoutes);    // Court management: CRUD operations
+router.use("/auth", authRoutes);        // Authentication: login, register, profile
+router.use("/courts", courtRoutes);     // Court management: CRUD operations
 router.use("/bookings", bookingRoutes); // Booking management: create, update, cancel
-router.use("/users", userRoutes);      // User management: admin-only operations
+router.use("/users", userRoutes);       // User management: admin-only operations
+router.use("/stats", statsRoutes);      // Dashboard analytics: revenue, occupancy
 
 module.exports = router;
