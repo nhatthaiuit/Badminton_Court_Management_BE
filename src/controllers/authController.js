@@ -35,7 +35,7 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { full_name, email, phone, password, role = "staff" } = req.body;
+  const { full_name, email, phone, password, role = "customer" } = req.body;
 
   // Check if email is already registered
   const [existing] = await pool.query(
