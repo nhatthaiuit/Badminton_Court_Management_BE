@@ -1,0 +1,11 @@
+# post-merge hook
+# Chạy tự động sau khi bạn thực hiện `git pull`
+
+echo "🔄 Đang tải code mới về (post-merge)..."
+
+if [ -f package-lock.json ]; then
+  echo "📦 Phát hiện thay đổi trong dependencies. Đang tự động chạy npm ci..."
+  npm ci
+else
+  npm install
+fi

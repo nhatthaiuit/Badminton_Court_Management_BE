@@ -1,0 +1,15 @@
+# post-checkout hook
+# Chạy tự động sau khi bạn đổi branch (ví dụ: git checkout dev)
+
+echo "🔄 Vừa chuyển nhánh (post-checkout)..."
+
+if [ ! -f "package.json" ]; then
+  exit 0
+fi
+
+if [ -f package-lock.json ]; then
+  echo "📦 Đang tự động đồng bộ thư viện (npm ci)..."
+  npm ci >/dev/null 2>&1 || npm install
+else
+  npm install
+fi
