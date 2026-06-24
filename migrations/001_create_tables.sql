@@ -87,7 +87,7 @@ VALUES (
   'Nhat Thai',
   '0901234567',
   'nhatthaiuit@gmail.com',
-  '$2a$12$Y8Q5wXoQpWqoRZfN1Uh8eOpJXdmFGbqeEqlZ7o9PgC2sZ3vH9YOXK', -- Admin@123
+  '$2b$10$yaorL.WnhesJkP3AiQ2fd.TX0vpSrXUOqG48s4pN2x6iDjp01ogu2', -- Admin@123
   'admin'
 );
 
