@@ -86,6 +86,13 @@ const createBooking = asyncHandler(async (req, res) => {
     note,
   } = req.body;
 
+  // ── PREVENT PAST BOOKINGS ──────────────────────────────────────────────────
+  const now = new Date();
+  const bookingDateTime = new Date(`${booking_date}T${start_time}`);
+  if (bookingDateTime < now) {
+    return res.status(400).json({ success: false, message: "Cannot book a time slot in the past." });
+  }
+
   // ── CONFLICT DETECTION ─────────────────────────────────────────────────────
   // Check if any ACTIVE booking on the same court and date overlaps with
   // the requested time slot. Two slots overlap if:
