@@ -21,6 +21,7 @@ const getOverview = asyncHandler(async (req, res) => {
     [todayRevenue],
     [courtStatus],
     [recentBookings],
+    [maintenanceBlocks],
   ] = await Promise.all([
     // Count of today's bookings by status
     pool.query(
@@ -61,6 +62,14 @@ const getOverview = asyncHandler(async (req, res) => {
        LIMIT 5`,
       [today]
     ),
+
+    // Count of maintenance blocks today
+    pool.query(
+      `SELECT COUNT(*) AS count
+       FROM bookings
+       WHERE booking_date = ? AND (customer_name = 'Maintenance Block' OR note LIKE '[MAINTENANCE]%') AND status NOT IN ('cancelled')`,
+      [today]
+    ),
   ]);
 
   // Transform court status array into a key-value map
@@ -79,7 +88,7 @@ const getOverview = asyncHandler(async (req, res) => {
       },
       courts: {
         available: courtMap["available"] || 0,
-        maintenance: courtMap["maintenance"] || 0,
+        maintenance: maintenanceBlocks[0].count || 0,
         inactive: courtMap["inactive"] || 0,
       },
       recentActivity: recentBookings,
