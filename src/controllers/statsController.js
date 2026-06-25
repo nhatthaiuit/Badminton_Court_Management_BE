@@ -63,9 +63,9 @@ const getOverview = asyncHandler(async (req, res) => {
       [today]
     ),
 
-    // Count of maintenance blocks today
+    // Count of unique courts under maintenance today
     pool.query(
-      `SELECT COUNT(*) AS count
+      `SELECT COUNT(DISTINCT court_id) AS count
        FROM bookings
        WHERE booking_date = ? AND (customer_name = 'Maintenance Block' OR note LIKE '[MAINTENANCE]%') AND status NOT IN ('cancelled')`,
       [today]
