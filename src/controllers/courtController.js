@@ -125,11 +125,19 @@ const deleteCourt = asyncHandler(async (req, res) => {
     throw createError(`Court with ID ${id} not found.`, 404);
   }
 
-  // Soft delete: mark as inactive instead of hard deleting
-  // This preserves historical booking records
-  await pool.query("UPDATE courts SET status = 'inactive' WHERE court_id = ?", [id]);
-
-  res.json(successResponse(`Court ${id} has been deactivated.`));
+  // Hard delete
+  try {
+    await pool.query("DELETE FROM courts WHERE court_id = ?", [id]);
+    res.json(successResponse(`Court ${id} has been deleted completely.`));
+  } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Cannot delete court with existing booking history. Please set its status to 'inactive' instead." 
+      });
+    }
+    throw error;
+  }
 });
 
 module.exports = { getAllCourts, getCourtById, createCourt, updateCourt, deleteCourt };
