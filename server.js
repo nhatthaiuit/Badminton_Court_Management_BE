@@ -14,6 +14,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./src/config/swagger");
 const router = require("./src/routes");
 const errorHandler = require("./src/middlewares/errorHandler");
+const { startCronJobs } = require("./src/utils/cronJobs");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -95,6 +96,9 @@ io.on("connection", (socket) => {
 
 // Attach io to app so controllers can access it
 app.set("io", io);
+
+// Start background cron jobs
+startCronJobs(io);
 
 // ==============================
 // START SERVER
