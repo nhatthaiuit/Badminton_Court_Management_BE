@@ -184,8 +184,8 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
 /**
  * @route   DELETE /api/v1/bookings/:id
- * @desc    Cancel a booking (sets status to 'cancelled')
- * @access  Private (admin, staff)
+ * @desc    Customer cancels booking (Refund request if > 2 hours)
+ * @access  Private (customer)
  */
 const cancelBooking = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -197,12 +197,35 @@ const cancelBooking = asyncHandler(async (req, res) => {
     throw createError(`Booking with ID ${id} not found.`, 404);
   }
 
-  if (existing[0].status === "cancelled") {
-    throw createError("Booking is already cancelled.", 400);
+  const booking = existing[0];
+
+  if (booking.status === "cancelled" || booking.status === "refunding" || booking.status === "refunded") {
+    throw createError("Booking cannot be cancelled in its current state.", 400);
+  }
+
+  // Enforce 2-hour window rule for confirmed bookings
+  let newStatus = "cancelled";
+  if (booking.status === "confirmed") {
+    const now = new Date();
+    // Assuming start_time is just time "HH:mm:ss", combine with booking_date
+    // booking_date could be a Date object or string
+    const bookingDateStr = typeof booking.booking_date === "object" 
+                           ? booking.booking_date.toISOString().split("T")[0] 
+                           : booking.booking_date;
+    const bookingDateTime = new Date(`${bookingDateStr}T${booking.start_time}`);
+    
+    const diffHours = (bookingDateTime - now) / (1000 * 60 * 60);
+    
+    if (diffHours < 2) {
+      throw createError("You can only cancel at least 2 hours before the start time.", 400);
+    }
+    
+    newStatus = "refunding"; // Needs manual refund by admin
   }
 
   await pool.query(
-    "UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?", [id]
+    "UPDATE bookings SET status = ?, note = CONCAT(IFNULL(note, ''), '\\n[System]: Cancelled by customer') WHERE booking_id = ?", 
+    [newStatus, id]
   );
 
   const io = req.app.get("io");
@@ -210,7 +233,42 @@ const cancelBooking = asyncHandler(async (req, res) => {
     io.emit("schedule_updated");
   }
 
-  res.json(successResponse(`Booking ${id} has been cancelled.`));
+  res.json(successResponse(`Booking ${id} status changed to ${newStatus}.`));
+});
+
+/**
+ * @route   POST /api/v1/bookings/:id/refund
+ * @desc    Admin marks a refunding booking as refunded
+ * @access  Private (admin, owner)
+ */
+const processRefund = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const [existing] = await pool.query(
+    "SELECT * FROM bookings WHERE booking_id = ?", [id]
+  );
+  
+  if (existing.length === 0) {
+    throw createError(`Booking with ID ${id} not found.`, 404);
+  }
+
+  const booking = existing[0];
+
+  if (booking.status !== "refunding") {
+    throw createError("Only bookings with 'refunding' status can be processed.", 400);
+  }
+
+  await pool.query(
+    "UPDATE bookings SET status = 'refunded', note = CONCAT(IFNULL(note, ''), '\\n[System]: Refund processed by admin') WHERE booking_id = ?", 
+    [id]
+  );
+
+  const io = req.app.get("io");
+  if (io) {
+    io.emit("schedule_updated");
+  }
+
+  res.json(successResponse(`Refund processed for booking ${id}.`));
 });
 
 module.exports = {
@@ -219,4 +277,5 @@ module.exports = {
   createBooking,
   updateBookingStatus,
   cancelBooking,
+  processRefund,
 };

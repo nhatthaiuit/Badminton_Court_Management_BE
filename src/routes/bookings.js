@@ -169,6 +169,24 @@ router.patch("/:id/status", authenticate, bookingController.updateBookingStatus)
  *       200:
  *         description: Booking cancelled
  */
-router.delete("/:id", authenticate, authorize("admin", "staff"), bookingController.cancelBooking);
+router.delete("/:id", authenticate, authorize("customer"), bookingController.cancelBooking);
+
+/**
+ * @swagger
+ * /bookings/{id}/refund:
+ *   post:
+ *     summary: Process refund for a cancelled booking (admin/owner only)
+ *     tags: [Bookings]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Refund processed
+ */
+router.post("/:id/refund", authenticate, authorize("admin", "owner"), bookingController.processRefund);
 
 module.exports = router;
