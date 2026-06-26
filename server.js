@@ -73,9 +73,33 @@ app.use("/api/v1", router);
 app.use(errorHandler);
 
 // ==============================
+// SOCKET.IO SETUP
+// ==============================
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CORS_ORIGIN || "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`🔌 Client connected: ${socket.id}`);
+  socket.on("disconnect", () => {
+    console.log(`🔌 Client disconnected: ${socket.id}`);
+  });
+});
+
+// Attach io to app so controllers can access it
+app.set("io", io);
+
+// ==============================
 // START SERVER
 // ==============================
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`\n🚀 BCMS API Server started`);
   console.log(`   - Environment : ${process.env.NODE_ENV || "development"}`);
   console.log(`   - Port        : ${PORT}`);
@@ -83,4 +107,4 @@ app.listen(PORT, () => {
   console.log(`   - API Docs    : http://localhost:${PORT}/api-docs\n`);
 });
 
-module.exports = app;
+module.exports = { app, server, io };

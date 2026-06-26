@@ -138,6 +138,11 @@ const createBooking = asyncHandler(async (req, res) => {
     [result.insertId]
   );
 
+  const io = req.app.get("io");
+  if (io) {
+    io.emit("schedule_updated");
+  }
+
   res.status(201).json(successResponse("Booking created successfully", newBooking[0]));
 });
 
@@ -169,6 +174,11 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
   const [updated] = await pool.query("SELECT * FROM bookings WHERE booking_id = ?", [id]);
 
+  const io = req.app.get("io");
+  if (io) {
+    io.emit("schedule_updated");
+  }
+
   res.json(successResponse(`Booking status updated to '${status}'`, updated[0]));
 });
 
@@ -194,6 +204,11 @@ const cancelBooking = asyncHandler(async (req, res) => {
   await pool.query(
     "UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?", [id]
   );
+
+  const io = req.app.get("io");
+  if (io) {
+    io.emit("schedule_updated");
+  }
 
   res.json(successResponse(`Booking ${id} has been cancelled.`));
 });
