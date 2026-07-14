@@ -13,10 +13,10 @@ const { authenticate } = require("../middlewares/auth");
 
 const registerValidation = [
   body("full_name").trim().notEmpty().withMessage("Full name is required"),
-  body("email").isEmail().normalizeEmail().withMessage("Valid email is required"),
+  body("email").optional({ checkFalsy: true }).isEmail().normalizeEmail().withMessage("Valid email is required"),
   body("phone")
-    .matches(/^[0-9]{9,11}$/)
-    .withMessage("Phone must be 9-11 digits"),
+    .matches(/^[0-9]{10}$/)
+    .withMessage("Phone must be exactly 10 digits"),
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
@@ -27,7 +27,9 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-  body("email").isEmail().normalizeEmail().withMessage("Valid email is required"),
+  body("phone")
+    .matches(/^[0-9]{10}$/)
+    .withMessage("Phone must be exactly 10 digits"),
   body("password").notEmpty().withMessage("Password is required"),
 ];
 

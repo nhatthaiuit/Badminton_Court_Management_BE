@@ -17,7 +17,7 @@ const { asyncHandler, successResponse, createError } = require("../utils/helpers
  */
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.user_id, email: user.email, role: user.role },
+    { id: user.user_id, phone: user.phone, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
@@ -37,13 +37,13 @@ const register = asyncHandler(async (req, res) => {
 
   const { full_name, email, phone, password, role = "customer" } = req.body;
 
-  // Check if email is already registered
+  // Check if phone is already registered
   const [existing] = await pool.query(
-    "SELECT user_id FROM users WHERE email = ?",
-    [email]
+    "SELECT user_id FROM users WHERE phone = ?",
+    [phone]
   );
   if (existing.length > 0) {
-    throw createError("Email is already registered.", 400);
+    throw createError("Phone number is already registered.", 400);
   }
 
   // Hash password with bcrypt (salt rounds = 12 for security)
@@ -52,7 +52,7 @@ const register = asyncHandler(async (req, res) => {
   // Insert new user into database
   const [result] = await pool.query(
     "INSERT INTO users (full_name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)",
-    [full_name, email, phone, hashedPassword, role]
+    [full_name, email || null, phone, hashedPassword, role]
   );
 
   // Fetch the created user to return (excluding password)
@@ -79,16 +79,16 @@ const login = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  // Find user by email
+  // Find user by phone
   const [users] = await pool.query(
-    "SELECT * FROM users WHERE email = ?",
-    [email]
+    "SELECT * FROM users WHERE phone = ?",
+    [phone]
   );
 
   if (users.length === 0) {
-    throw createError("Invalid email or password.", 401);
+    throw createError("Invalid phone number or password.", 401);
   }
 
   const user = users[0];
@@ -96,7 +96,7 @@ const login = asyncHandler(async (req, res) => {
   // Compare submitted password with stored hash
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw createError("Invalid email or password.", 401);
+    throw createError("Invalid phone number or password.", 401);
   }
 
   // Generate JWT token

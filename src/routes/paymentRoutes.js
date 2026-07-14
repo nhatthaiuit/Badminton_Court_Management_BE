@@ -5,12 +5,12 @@
 
 const express = require("express");
 const { mockPay } = require("../controllers/paymentController");
-const { protect } = require("../middlewares/authMiddleware");
+const { authenticate } = require("../middlewares/auth");
 
 const router = express.Router();
 
 // Apply auth middleware to all routes below
-router.use(protect);
+router.use(authenticate);
 
 router.post("/mock-pay", mockPay);
 
