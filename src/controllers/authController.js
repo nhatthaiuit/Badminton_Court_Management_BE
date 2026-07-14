@@ -12,7 +12,7 @@ const { asyncHandler, successResponse, createError } = require("../utils/helpers
 
 /**
  * Generate a signed JWT token for an authenticated user.
- * @param {object} user - User object containing id, email, role
+ * @param {object} user - User object containing id, phone, role
  * @returns {string} Signed JWT token
  */
 const generateToken = (user) => {
@@ -35,7 +35,7 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { full_name, email, phone, password, role = "customer" } = req.body;
+  const { full_name, phone, password, role = "customer" } = req.body;
 
   // Check if phone is already registered
   const [existing] = await pool.query(
@@ -51,13 +51,13 @@ const register = asyncHandler(async (req, res) => {
 
   // Insert new user into database
   const [result] = await pool.query(
-    "INSERT INTO users (full_name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)",
-    [full_name, email || null, phone, hashedPassword, role]
+    "INSERT INTO users (full_name, phone, password, role) VALUES (?, ?, ?, ?)",
+    [full_name, phone, hashedPassword, role]
   );
 
   // Fetch the created user to return (excluding password)
   const [newUser] = await pool.query(
-    "SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?",
+    "SELECT user_id, full_name, phone, role, created_at FROM users WHERE user_id = ?",
     [result.insertId]
   );
 
@@ -118,7 +118,7 @@ const login = asyncHandler(async (req, res) => {
 const getProfile = asyncHandler(async (req, res) => {
   // req.user is set by the authenticate middleware
   const [users] = await pool.query(
-    "SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?",
+    "SELECT user_id, full_name, phone, role, created_at FROM users WHERE user_id = ?",
     [req.user.id]
   );
 

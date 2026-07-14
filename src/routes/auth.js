@@ -13,7 +13,6 @@ const { authenticate } = require("../middlewares/auth");
 
 const registerValidation = [
   body("full_name").trim().notEmpty().withMessage("Full name is required"),
-  body("email").optional({ checkFalsy: true }).isEmail().normalizeEmail().withMessage("Valid email is required"),
   body("phone")
     .matches(/^[0-9]{10}$/)
     .withMessage("Phone must be exactly 10 digits"),
@@ -55,14 +54,11 @@ const loginValidation = [
  *         application/json:
  *           schema:
  *             type: object
- *             required: [full_name, email, phone, password]
+ *             required: [full_name, phone, password]
  *             properties:
  *               full_name:
  *                 type: string
  *                 example: Nguyen Van A
- *               email:
- *                 type: string
- *                 example: nguyenvana@email.com
  *               phone:
  *                 type: string
  *                 example: "0901234567"
@@ -94,11 +90,11 @@ router.post("/register", registerValidation, authController.register);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             required: [phone, password]
  *             properties:
- *               email:
+ *               phone:
  *                 type: string
- *                 example: nguyenvana@email.com
+ *                 example: "0901234567"
  *               password:
  *                 type: string
  *                 example: "password123"

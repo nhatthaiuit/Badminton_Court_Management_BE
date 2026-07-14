@@ -27,7 +27,7 @@ const authenticate = (req, res, next) => {
   try {
     // Verify token signature and expiry using the secret key
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach decoded payload (id, role, email) to request
+    req.user = decoded; // Attach decoded payload (id, role, phone) to request
     next();
   } catch (error) {
     return res.status(401).json({
