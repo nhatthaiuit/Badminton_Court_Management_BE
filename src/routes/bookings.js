@@ -155,9 +155,9 @@ router.patch("/:id/status", authenticate, bookingController.updateBookingStatus)
 
 /**
  * @swagger
- * /bookings/{id}:
- *   delete:
- *     summary: Cancel a booking (admin/staff only)
+ * /bookings/{id}/cancel:
+ *   patch:
+ *     summary: Cancel a booking and provide refund account info (customer only)
  *     tags: [Bookings]
  *     parameters:
  *       - in: path
@@ -165,11 +165,20 @@ router.patch("/:id/status", authenticate, bookingController.updateBookingStatus)
  *         required: true
  *         schema:
  *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refund_account:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Booking cancelled
+ *         description: Booking cancelled/refunding
  */
-router.delete("/:id", authenticate, authorize("customer"), bookingController.cancelBooking);
+router.patch("/:id/cancel", authenticate, authorize("customer"), bookingController.cancelBooking);
 
 /**
  * @swagger

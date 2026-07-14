@@ -183,12 +183,13 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 });
 
 /**
- * @route   DELETE /api/v1/bookings/:id
+ * @route   PATCH /api/v1/bookings/:id/cancel
  * @desc    Customer cancels booking (Refund request if > 2 hours)
  * @access  Private (customer)
  */
 const cancelBooking = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const { refund_account } = req.body;
 
   const [existing] = await pool.query(
     "SELECT * FROM bookings WHERE booking_id = ?", [id]
@@ -224,8 +225,8 @@ const cancelBooking = asyncHandler(async (req, res) => {
   }
 
   await pool.query(
-    "UPDATE bookings SET status = ?, note = CONCAT(IFNULL(note, ''), '\\n[System]: Cancelled by customer') WHERE booking_id = ?", 
-    [newStatus, id]
+    "UPDATE bookings SET status = ?, refund_account = ?, note = CONCAT(IFNULL(note, ''), '\\n[System]: Cancelled by customer') WHERE booking_id = ?", 
+    [newStatus, refund_account || null, id]
   );
 
   const io = req.app.get("io");
