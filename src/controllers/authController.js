@@ -9,10 +9,12 @@ const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const pool = require("../config/database");
 const { asyncHandler, successResponse, createError } = require("../utils/helpers");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 /**
  * Generate a signed JWT token for an authenticated user.
- * @param {object} user - User object containing id, phone, role
+ * @param {object} user - User object containing id, phone, email, role
  * @returns {string} Signed JWT token
  */
 const generateToken = (user) => {
@@ -35,7 +37,7 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { full_name, phone, password, role = "customer" } = req.body;
+  const { full_name, email, phone, password, role = "customer" } = req.body;
 
   // Check if phone is already registered
   const [existing] = await pool.query(
@@ -51,13 +53,13 @@ const register = asyncHandler(async (req, res) => {
 
   // Insert new user into database
   const [result] = await pool.query(
-    "INSERT INTO users (full_name, phone, password, role) VALUES (?, ?, ?, ?)",
-    [full_name, phone, hashedPassword, role]
+    "INSERT INTO users (full_name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)",
+    [full_name, email, phone, hashedPassword, role]
   );
 
   // Fetch the created user to return (excluding password)
   const [newUser] = await pool.query(
-    "SELECT user_id, full_name, phone, role, created_at FROM users WHERE user_id = ?",
+    "SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?",
     [result.insertId]
   );
 
@@ -118,7 +120,7 @@ const login = asyncHandler(async (req, res) => {
 const getProfile = asyncHandler(async (req, res) => {
   // req.user is set by the authenticate middleware
   const [users] = await pool.query(
-    "SELECT user_id, full_name, phone, role, created_at FROM users WHERE user_id = ?",
+    "SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?",
     [req.user.id]
   );
 
@@ -129,4 +131,111 @@ const getProfile = asyncHandler(async (req, res) => {
   res.json(successResponse("Profile retrieved", users[0]));
 });
 
-module.exports = { register, login, getProfile };
+// Configure nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { phone } = req.body;
+
+  // Check if user exists
+  const [users] = await pool.query("SELECT user_id, email, full_name FROM users WHERE phone = ?", [phone]);
+  if (users.length === 0) {
+    throw createError("User with this phone number not found.", 404);
+  }
+
+  const user = users[0];
+  if (!user.email) {
+    throw createError("No email associated with this account. Cannot recover password.", 400);
+  }
+
+  // Generate random token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  const tokenExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  // Save to DB
+  await pool.query(
+    "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE user_id = ?",
+    [hashedToken, tokenExpiry, user.user_id]
+  );
+
+  // Send Email
+  const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+  const mailOptions = {
+    from: `"BCMS Support" <${process.env.EMAIL_USER}>`,
+    to: user.email,
+    subject: "Password Reset Request",
+    html: `
+      <h3>Hello ${user.full_name},</h3>
+      <p>You requested a password reset for your BCMS account.</p>
+      <p>Please click the link below to reset your password. This link is valid for 10 minutes.</p>
+      <a href="${resetUrl}">Reset Password</a>
+      <p>If you didn't request this, please ignore this email.</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json(successResponse("Password reset link sent to your email."));
+  } catch (error) {
+    console.error("Email send error:", error);
+    // Remove token if email failed
+    await pool.query(
+      "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE user_id = ?",
+      [user.user_id]
+    );
+    throw createError("There was an error sending the email. Try again later.", 500);
+  }
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { token, new_password } = req.body;
+
+  // Hash the token from the user to compare with DB
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  // Find user by token and check expiry
+  const [users] = await pool.query(
+    "SELECT user_id FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()",
+    [hashedToken]
+  );
+
+  if (users.length === 0) {
+    throw createError("Token is invalid or has expired", 400);
+  }
+
+  const user = users[0];
+  const newHashedPassword = await bcrypt.hash(new_password, 12);
+
+  // Update password and clear token
+  await pool.query(
+    "UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE user_id = ?",
+    [newHashedPassword, user.user_id]
+  );
+
+  res.json(successResponse("Password has been reset successfully. You can now login."));
+});
+
+module.exports = {
+  register,
+  login,
+  getProfile,
+  forgotPassword,
+  resetPassword,
+};
