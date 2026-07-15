@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone      VARCHAR(15)  NOT NULL,
   email      VARCHAR(100) NOT NULL UNIQUE,
   password   VARCHAR(255) NOT NULL,             -- bcrypt-hashed
-  role       ENUM('admin', 'staff', 'owner') NOT NULL DEFAULT 'staff',
+  role       ENUM('admin', 'staff', 'owner', 'customer') NOT NULL DEFAULT 'customer',
   created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
