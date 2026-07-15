@@ -62,29 +62,18 @@ router.get("/:id", authenticate, authorize("admin"), userController.getUserById)
  * @swagger
  * /users/{id}:
  *   patch:
- *     summary: Update user role (admin only)
+ *     summary: Update user role
  *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [role]
- *             properties:
- *               role:
- *                 type: string
- *                 enum: [admin, staff, owner]
- *     responses:
- *       200:
- *         description: Role updated
  */
-router.patch("/:id", authenticate, authorize("admin"), userController.updateUserRole);
+router.patch("/:id", authenticate, authorize("admin", "owner"), userController.updateUserRole);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update user info
+ *     tags: [Users]
+ */
+router.put("/:id", authenticate, authorize("admin", "owner", "staff"), userController.updateUser);
 
 module.exports = router;
