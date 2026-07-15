@@ -1,157 +1,78 @@
-# 🏸 BCMS — Badminton Court Management System (Backend)
+# Badminton Court Management System - Backend
 
-> RESTful API server for BCMS built with **Node.js**, **Express**, and **MySQL**.
+![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
-[![Express](https://img.shields.io/badge/Express-4.x-lightgrey)](https://expressjs.com)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)](https://mysql.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+A robust Node.js/Express REST API serving the Badminton Court Management System.
 
----
+## 🚀 Features
 
-## 📋 Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Environment Variables](#environment-variables)
-
----
-
-## ✨ Features
-
-- **JWT Authentication** — Secure login with role-based access control (admin / staff / owner)
-- **Court Management** — Full CRUD for badminton courts
-- **Booking Management** — Real-time double-booking conflict detection
-- **Swagger API Docs** — Interactive API documentation at `/api-docs`
-- **Global Error Handling** — Consistent JSON error responses across all endpoints
-
----
+- **Double-Booking Prevention**: Advanced MySQL queries to prevent overlapping time slots even with concurrent requests.
+- **WebSocket Integration**: Pushes real-time schedule updates to all connected clients whenever a booking changes status.
+- **Automated Cron Jobs**: A background task continuously monitors pending bookings and automatically cancels them if unpaid for 15 minutes.
+- **JWT Authentication**: Role-based access control (Admin, Staff, Customer).
+- **Relational Database Model**: Well-structured schema to manage courts, bookings, and users.
 
 ## 🛠 Tech Stack
 
-| Layer       | Technology            |
-|-------------|-----------------------|
-| Runtime     | Node.js 18+           |
-| Framework   | Express.js            |
-| Database    | MySQL 8.0             |
-| ORM/Driver  | mysql2/promise        |
-| Auth        | JWT (jsonwebtoken)    |
-| Password    | bcryptjs              |
-| API Docs    | Swagger (swagger-jsdoc + swagger-ui-express) |
-| Validation  | express-validator     |
-| Logging     | morgan                |
-| Dev Tool    | nodemon               |
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MySQL 8.0 (mysql2 promise wrapper)
+- **WebSockets**: Socket.io
+- **Auth**: JSON Web Tokens (jsonwebtoken), bcryptjs
+- **Background Jobs**: node-cron
 
----
+## 🗄️ Database Schema
 
-## 📁 Project Structure
+- `users`: Manages staff and admin credentials.
+- `courts`: Stores court names, statuses (available/maintenance), and `price_per_hour`.
+- `bookings`: Core table tracking customer details, court_id, start/end times, and payment status.
+- `payments`: Tracks transaction records (optional usage for manual verification).
 
-```
-├── migrations/
-│   └── 001_create_tables.sql   # Database schema + seed data
-├── src/
-│   ├── config/
-│   │   ├── database.js          # MySQL connection pool
-│   │   └── swagger.js           # OpenAPI spec configuration
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── bookingController.js
-│   │   ├── courtController.js
-│   │   └── userController.js
-│   ├── middlewares/
-│   │   ├── auth.js              # JWT verify + role authorization
-│   │   └── errorHandler.js      # Global error handler
-│   ├── routes/
-│   │   ├── index.js             # Central router
-│   │   ├── auth.js
-│   │   ├── bookings.js
-│   │   ├── courts.js
-│   │   └── users.js
-│   └── utils/
-│       └── helpers.js           # asyncHandler, createError, successResponse
-├── .env.example
-├── server.js                    # App entry point
-└── package.json
-```
+## 💻 Local Setup
 
----
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/Badminton_Court_Management_BE.git
+   cd Badminton_Court_Management_BE
+   ```
 
-## 🚀 Getting Started
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Prerequisites
-- Node.js >= 18
-- MySQL 8.0 running locally or remote
+3. **Configure Database & Environment**
+   Create a `.env` file in the root directory:
+   ```env
+   PORT=5001
+   NODE_ENV=development
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_USER=root
+   DB_PASSWORD=yourpassword
+   DB_NAME=bcms_db
+   JWT_SECRET=your_super_secret_jwt_key
+   JWT_EXPIRES_IN=7d
+   CORS_ORIGIN=http://localhost:5173
+   ```
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/nhatthaiuit/Badminton_Court_Management_BE.git
-cd Badminton_Court_Management_BE
-```
+4. **Initialize Database**
+   Run the SQL scripts located in the `/migrations` folder on your local MySQL server to create the schema and seed initial data.
 
-### 2. Install dependencies
-```bash
-npm install
-```
+5. **Start the server**
+   ```bash
+   npm run dev
+   ```
 
-### 3. Configure environment variables
-```bash
-cp .env.example .env
-# Edit .env with your MySQL credentials and JWT secret
-```
+## 🌐 Deployment (Render.com)
 
-### 4. Run database migration
-```bash
-mysql -u root -p < migrations/001_create_tables.sql
-```
-
-### 5. Start development server
-```bash
-npm run dev
-```
-
-Server starts at: `http://localhost:5000`
-
----
-
-## 📖 API Documentation
-
-Interactive Swagger UI available at:
-```
-http://localhost:5000/api-docs
-```
-
-### API Endpoints Overview
-
-| Method | Endpoint                    | Description                  | Auth |
-|--------|-----------------------------|------------------------------|------|
-| POST   | `/api/v1/auth/register`     | Register new user            | ❌   |
-| POST   | `/api/v1/auth/login`        | Login & get JWT token        | ❌   |
-| GET    | `/api/v1/auth/me`           | Get current user profile     | ✅   |
-| GET    | `/api/v1/courts`            | List all courts              | ✅   |
-| POST   | `/api/v1/courts`            | Create court                 | ✅ admin |
-| PUT    | `/api/v1/courts/:id`        | Update court                 | ✅ admin |
-| DELETE | `/api/v1/courts/:id`        | Deactivate court             | ✅ admin |
-| GET    | `/api/v1/bookings`          | List bookings (filterable)   | ✅   |
-| POST   | `/api/v1/bookings`          | Create booking               | ✅   |
-| PATCH  | `/api/v1/bookings/:id/status` | Update booking status      | ✅   |
-| DELETE | `/api/v1/bookings/:id`      | Cancel booking               | ✅   |
-| GET    | `/api/v1/users`             | List all users               | ✅ admin |
-
----
-
-## ⚙️ Environment Variables
-
-See [`.env.example`](.env.example) for all required variables.
-
-```env
-PORT=5000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=bcms_db
-JWT_SECRET=your_secret_key
-JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:3000
-```
+This backend can be easily deployed to [Render](https://render.com/):
+1. Push your code to GitHub.
+2. Create a "Web Service" in Render.
+3. Connect your GitHub repository.
+4. Set the Build Command to `npm install` and Start Command to `node server.js` (or `npm start`).
+5. Set up your Environment Variables (especially the Database connection URL pointing to your managed MySQL like Aiven).
+6. Deploy!
