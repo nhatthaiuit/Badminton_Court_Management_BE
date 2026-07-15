@@ -10,6 +10,9 @@ A robust Node.js/Express REST API serving the Badminton Court Management System.
 ## 📖 Comprehensive Documentation
 For detailed system architecture, Database ERD (Entity Relationship Diagram), API Flowcharts, and full project descriptions, please visit our **[Notion Workspace](https://app.notion.com/p/Badminton-Court-Management-System-3849f49bca6d8032a1b6d16c2a71ce08?source=copy_link)**.
 
+## 🌐 Live API Endpoint
+**[Insert your live Render link here once deployed]**
+
 ## 🚀 Features
 
 - **Double-Booking Prevention**: Advanced MySQL queries to prevent overlapping time slots even with concurrent requests.
@@ -70,12 +73,17 @@ For detailed system architecture, Database ERD (Entity Relationship Diagram), AP
    npm run dev
    ```
 
-## 🌐 Deployment (Render.com)
+## 📁 Project Structure
 
-This backend can be easily deployed to [Render](https://render.com/):
-1. Push your code to GitHub.
-2. Create a "Web Service" in Render.
-3. Connect your GitHub repository.
-4. Set the Build Command to `npm install` and Start Command to `node server.js` (or `npm start`).
-5. Set up your Environment Variables (especially the Database connection URL pointing to your managed MySQL like Aiven).
-6. Deploy!
+```
+.
+├── migrations/      # Database initialization SQL scripts
+├── src/
+│   ├── config/      # Database connection & env configurations
+│   ├── controllers/ # Request handlers (Auth, Bookings, Courts, etc.)
+│   ├── middlewares/ # Express middlewares (Auth, Error handling)
+│   ├── models/      # Data access layer (if separated)
+│   ├── routes/      # Express API routes definitions
+│   └── utils/       # Utility functions and Cron Jobs
+└── server.js        # Application entry point & Socket.io setup
+```
