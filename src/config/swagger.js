@@ -23,12 +23,8 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api/v1",
-        description: "Local Development Server",
-      },
-      {
-        url: "https://bcms-api.onrender.com/api/v1",
-        description: "Production Server (Render)",
+        url: "/api/v1",
+        description: "Current Server",
       },
     ],
     // Define reusable security scheme for JWT Bearer authentication

@@ -176,7 +176,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   );
 
   // Send Email
-  const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
   const mailOptions = {
     from: `"BCMS Support" <${process.env.EMAIL_USER}>`,
     to: user.email,
