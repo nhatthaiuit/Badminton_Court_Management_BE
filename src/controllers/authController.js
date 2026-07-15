@@ -39,6 +39,10 @@ const register = asyncHandler(async (req, res) => {
 
   const { full_name, email, phone, password, role = "customer" } = req.body;
 
+  if (!email || !email.endsWith("@gmail.com")) {
+    throw createError("Email must end with @gmail.com", 400);
+  }
+
   // Check if phone is already registered
   const [existing] = await pool.query(
     "SELECT user_id FROM users WHERE phone = ?",
