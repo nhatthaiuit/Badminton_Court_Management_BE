@@ -58,11 +58,11 @@ const createCourt = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { name, status = "available" } = req.body;
+  const { name, status = "available", price_per_hour = 100000.00 } = req.body;
 
   const [result] = await pool.query(
-    "INSERT INTO courts (name, status) VALUES (?, ?)",
-    [name, status]
+    "INSERT INTO courts (name, status, price_per_hour) VALUES (?, ?, ?)",
+    [name, status, price_per_hour]
   );
 
   const [newCourt] = await pool.query(
@@ -85,7 +85,7 @@ const updateCourt = asyncHandler(async (req, res) => {
   }
 
   const { id } = req.params;
-  const { name, status } = req.body;
+  const { name, status, price_per_hour } = req.body;
 
   // Verify court exists before updating
   const [existing] = await pool.query("SELECT * FROM courts WHERE court_id = ?", [id]);
@@ -99,6 +99,7 @@ const updateCourt = asyncHandler(async (req, res) => {
 
   if (name !== undefined) { updates.push("name = ?"); params.push(name); }
   if (status !== undefined) { updates.push("status = ?"); params.push(status); }
+  if (price_per_hour !== undefined) { updates.push("price_per_hour = ?"); params.push(price_per_hour); }
 
   if (updates.length === 0) {
     return res.status(400).json({ success: false, message: "No fields to update." });

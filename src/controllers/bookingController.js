@@ -114,16 +114,19 @@ const createBooking = asyncHandler(async (req, res) => {
     );
   }
 
-  // ── Calculate price from booking_details (slots × price per slot) ──────────
-  const [slots] = await pool.query(
-    `SELECT price FROM booking_details 
-     WHERE court_id = ? AND start_time >= ? AND end_time <= ?
-     LIMIT 1`,
-    [court_id, start_time, end_time]
+  // ── Calculate price based on court's price_per_hour ──────────
+  const [courtData] = await pool.query(
+    `SELECT price_per_hour FROM courts WHERE court_id = ?`,
+    [court_id]
   );
-
-  // Default price if no slot config found
-  const totalPrice = slots.length > 0 ? slots[0].price : 0;
+  
+  const pricePerHour = courtData.length > 0 ? parseFloat(courtData[0].price_per_hour) : 0;
+  
+  const startHour = parseInt(start_time.split(":")[0]);
+  const endHour = parseInt(end_time.split(":")[0]);
+  const duration = endHour - startHour;
+  
+  const totalPrice = duration > 0 ? duration * pricePerHour : pricePerHour;
 
   // ── Insert booking ──────────────────────────────────────────────────────────
   const [result] = await pool.query(
