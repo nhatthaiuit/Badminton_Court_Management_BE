@@ -27,7 +27,16 @@ const { authenticate, authorize } = require("../middlewares/auth");
  *       403:
  *         description: Forbidden
  */
-router.get("/", authenticate, authorize("admin"), userController.getAllUsers);
+router.get("/", authenticate, authorize("admin", "owner", "staff"), userController.getAllUsers);
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a user with role check
+ *     tags: [Users]
+ */
+router.post("/", authenticate, authorize("admin", "owner", "staff"), userController.createUser);
 
 /**
  * @swagger

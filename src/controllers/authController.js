@@ -37,7 +37,8 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { full_name, email, phone, password, role = "customer" } = req.body;
+  const { full_name, email, phone, password } = req.body;
+  const role = "customer"; // Force role to customer for public registration
 
   if (!email || !email.endsWith("@gmail.com")) {
     throw createError("Email must end with @gmail.com", 400);

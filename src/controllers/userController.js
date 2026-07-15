@@ -4,6 +4,7 @@
  */
 
 const pool = require("../config/database");
+const bcrypt = require("bcryptjs");
 const { asyncHandler, successResponse, createError } = require("../utils/helpers");
 
 /**
@@ -68,4 +69,54 @@ const updateUserRole = asyncHandler(async (req, res) => {
   res.json(successResponse("User role updated successfully", updated[0]));
 });
 
-module.exports = { getAllUsers, getUserById, updateUserRole };
+/**
+ * @route   POST /api/v1/users
+ * @desc    Create a new user with RBAC checks
+ * @access  Private (admin, owner, staff)
+ */
+const createUser = asyncHandler(async (req, res) => {
+  const { full_name, email, phone, password, role = "customer" } = req.body;
+  const currentRole = req.user.role;
+
+  // Validate allowed roles based on current user's role
+  const allowedRolesForAdmin = ["admin", "owner", "staff", "customer"];
+  const allowedRolesForOwner = ["staff", "customer"];
+  const allowedRolesForStaff = ["customer"];
+
+  let hasPermission = false;
+  if (currentRole === "admin" && allowedRolesForAdmin.includes(role)) hasPermission = true;
+  if (currentRole === "owner" && allowedRolesForOwner.includes(role)) hasPermission = true;
+  if (currentRole === "staff" && allowedRolesForStaff.includes(role)) hasPermission = true;
+
+  if (!hasPermission) {
+    throw createError(`Role '${currentRole}' is not authorized to create a user with role '${role}'.`, 403);
+  }
+
+  if (!email || !email.endsWith("@gmail.com")) {
+    throw createError("Email must end with @gmail.com", 400);
+  }
+
+  // Check if phone is already registered
+  const [existing] = await pool.query("SELECT user_id FROM users WHERE phone = ?", [phone]);
+  if (existing.length > 0) {
+    throw createError("Phone number is already registered.", 400);
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  // Insert new user
+  const [result] = await pool.query(
+    "INSERT INTO users (full_name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)",
+    [full_name, email, phone, hashedPassword, role]
+  );
+
+  const [newUser] = await pool.query(
+    "SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?",
+    [result.insertId]
+  );
+
+  res.status(201).json(successResponse("User created successfully", newUser[0]));
+});
+
+module.exports = { getAllUsers, getUserById, updateUserRole, createUser };
