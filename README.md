@@ -7,6 +7,9 @@
 
 A robust Node.js/Express REST API serving the Badminton Court Management System.
 
+## 📖 Comprehensive Documentation
+For detailed system architecture, Database ERD (Entity Relationship Diagram), API Flowcharts, and full project descriptions, please visit our **[Notion Workspace](https://app.notion.com/p/Badminton-Court-Management-System-3849f49bca6d8032a1b6d16c2a71ce08?source=copy_link)**.
+
 ## 🚀 Features
 
 - **Double-Booking Prevention**: Advanced MySQL queries to prevent overlapping time slots even with concurrent requests.
