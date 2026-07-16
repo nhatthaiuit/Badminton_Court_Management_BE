@@ -71,7 +71,7 @@ router.get("/:id", authenticate, courtController.getCourtById);
  * @swagger
  * /courts:
  *   post:
- *     summary: Create a new court (admin/owner only)
+ *     summary: Create a new court (Admin/Owner only)
  *     tags: [Courts]
  *     requestBody:
  *       required: true
@@ -100,7 +100,7 @@ router.post("/", authenticate, authorize("admin", "owner"), courtValidation, cou
  * @swagger
  * /courts/{id}:
  *   put:
- *     summary: Update court details (admin/owner only)
+ *     summary: Update court details (Admin/Owner only)
  *     tags: [Courts]
  *     parameters:
  *       - in: path
@@ -132,7 +132,7 @@ router.put("/:id", authenticate, authorize("admin", "owner"), courtValidation, c
  * @swagger
  * /courts/{id}:
  *   delete:
- *     summary: Delete a court (admin only)
+ *     summary: Delete a court (Admin only)
  *     tags: [Courts]
  *     parameters:
  *       - in: path

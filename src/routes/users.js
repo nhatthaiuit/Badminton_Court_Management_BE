@@ -19,7 +19,7 @@ const { authenticate, authorize } = require("../middlewares/auth");
  * @swagger
  * /users:
  *   get:
- *     summary: Get all users (admin only)
+ *     summary: Get all users (Admin/Owner/Staff only)
  *     tags: [Users]
  *     responses:
  *       200:
@@ -33,7 +33,7 @@ router.get("/", authenticate, authorize("admin", "owner", "staff"), userControll
  * @swagger
  * /users:
  *   post:
- *     summary: Create a user with role check
+ *     summary: Create a user with role check (Admin/Owner/Staff only)
  *     tags: [Users]
  *     requestBody:
  *       required: true
@@ -68,7 +68,7 @@ router.post("/", authenticate, authorize("admin", "owner", "staff"), userControl
  * @swagger
  * /users/{id}:
  *   get:
- *     summary: Get a user by ID (admin only)
+ *     summary: Get a user by ID (Admin only)
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -88,7 +88,7 @@ router.get("/:id", authenticate, authorize("admin"), userController.getUserById)
  * @swagger
  * /users/{id}:
  *   patch:
- *     summary: Update user role
+ *     summary: Update user role (Admin/Owner only)
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -120,7 +120,7 @@ router.patch("/:id", authenticate, authorize("admin", "owner"), userController.u
  * @swagger
  * /users/{id}:
  *   put:
- *     summary: Update user info
+ *     summary: Update user info (Admin/Owner/Staff only)
  *     tags: [Users]
  *     parameters:
  *       - in: path

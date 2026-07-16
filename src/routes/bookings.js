@@ -128,7 +128,7 @@ router.post("/", authenticate, bookingValidation, bookingController.createBookin
  * @swagger
  * /bookings/{id}/status:
  *   patch:
- *     summary: Update booking status (confirm, cancel, complete)
+ *     summary: Update booking status (confirm, cancel, complete) (Admin/Owner/Staff only)
  *     tags: [Bookings]
  *     parameters:
  *       - in: path
@@ -157,7 +157,7 @@ router.patch("/:id/status", authenticate, authorize("admin", "owner", "staff"), 
  * @swagger
  * /bookings/{id}/cancel:
  *   patch:
- *     summary: Cancel a booking and provide refund account info (customer only)
+ *     summary: Cancel a booking and provide refund account info (Customer only)
  *     tags: [Bookings]
  *     parameters:
  *       - in: path
@@ -184,7 +184,7 @@ router.patch("/:id/cancel", authenticate, authorize("customer"), bookingControll
  * @swagger
  * /bookings/{id}/refund:
  *   post:
- *     summary: Process refund for a cancelled booking (admin/owner only)
+ *     summary: Process refund for a cancelled booking (Admin/Owner only)
  *     tags: [Bookings]
  *     parameters:
  *       - in: path

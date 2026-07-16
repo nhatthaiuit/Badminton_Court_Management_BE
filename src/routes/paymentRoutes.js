@@ -23,7 +23,7 @@ router.use(authenticate);
  * @swagger
  * /payments/mock-pay:
  *   post:
- *     summary: Simulate a successful payment for a pending booking
+ *     summary: Simulate a successful payment for a pending booking (Any logged-in user)
  *     tags: [Payments]
  *     requestBody:
  *       required: true

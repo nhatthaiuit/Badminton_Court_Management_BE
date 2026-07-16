@@ -20,7 +20,7 @@ const { authenticate, authorize } = require("../middlewares/auth");
  * @swagger
  * /stats/overview:
  *   get:
- *     summary: Get today's overview (total bookings, revenue, court status)
+ *     summary: Get today's overview (total bookings, revenue, court status) (Admin/Owner/Staff only)
  *     tags: [Statistics]
  *     responses:
  *       200:
@@ -32,7 +32,7 @@ router.get("/overview", authenticate, authorize("admin", "owner", "staff"), stat
  * @swagger
  * /stats/revenue:
  *   get:
- *     summary: Get daily revenue for a date range
+ *     summary: Get daily revenue for a date range (Admin/Owner only)
  *     tags: [Statistics]
  *     parameters:
  *       - in: query
@@ -57,7 +57,7 @@ router.get("/revenue", authenticate, authorize("admin", "owner"), statsControlle
  * @swagger
  * /stats/court-occupancy:
  *   get:
- *     summary: Get court occupancy rate for a given date
+ *     summary: Get court occupancy rate for a given date (Admin/Owner/Staff only)
  *     tags: [Statistics]
  *     parameters:
  *       - in: query
