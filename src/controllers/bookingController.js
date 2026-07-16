@@ -35,6 +35,17 @@ const getAllBookings = asyncHandler(async (req, res) => {
 
   const [bookings] = await pool.query(query, params);
 
+  // Mask sensitive data for regular customers (IDOR prevention)
+  if (req.user.role === "customer") {
+    bookings.forEach(b => {
+      if (b.created_by !== req.user.id) {
+        b.customer_name = "Khách hàng";
+        b.customer_phone = "***";
+        b.total_price = null;
+      }
+    });
+  }
+
   res.json(successResponse("Bookings retrieved", bookings, { total: bookings.length }));
 });
 
@@ -62,7 +73,16 @@ const getBookingById = asyncHandler(async (req, res) => {
     throw createError(`Booking with ID ${id} not found.`, 404);
   }
 
-  res.json(successResponse("Booking retrieved", bookings[0]));
+  const booking = bookings[0];
+
+  // Mask sensitive data for regular customers (IDOR prevention)
+  if (req.user.role === "customer" && booking.created_by !== req.user.id) {
+    booking.customer_name = "Khách hàng";
+    booking.customer_phone = "***";
+    booking.total_price = null;
+  }
+
+  res.json(successResponse("Booking retrieved", booking));
 });
 
 /**
@@ -86,10 +106,16 @@ const createBooking = asyncHandler(async (req, res) => {
     note,
   } = req.body;
 
-  // ── PREVENT PAST BOOKINGS ──────────────────────────────────────────────────
-  const now = new Date();
+  // ── PREVENT PAST BOOKINGS \u0026 INVALID TIME ───────────────────────────────────
+  if (start_time >= end_time) {
+    return res.status(400).json({ success: false, message: "End time must be after start time." });
+  }
+
+  // Get current time in Vietnam (UTC+7)
+  const nowInVN = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
   const bookingDateTime = new Date(`${booking_date}T${start_time}`);
-  if (bookingDateTime < now) {
+  
+  if (bookingDateTime < nowInVN) {
     return res.status(400).json({ success: false, message: "Cannot book a time slot in the past." });
   }
 

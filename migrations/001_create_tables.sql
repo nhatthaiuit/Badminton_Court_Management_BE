@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
   email      VARCHAR(100) NOT NULL UNIQUE,
   password   VARCHAR(255) NOT NULL,             -- bcrypt-hashed
   role       ENUM('admin', 'staff', 'owner', 'customer') NOT NULL DEFAULT 'customer',
+  reset_token VARCHAR(255) NULL,
+  reset_token_expiry DATETIME NULL,
   created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS courts (
   court_id   INT          AUTO_INCREMENT PRIMARY KEY,
   name       VARCHAR(100) NOT NULL,
   status     ENUM('available', 'maintenance', 'inactive') NOT NULL DEFAULT 'available',
+  price_per_hour DECIMAL(10, 2) NOT NULL DEFAULT 100000.00,
   created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
