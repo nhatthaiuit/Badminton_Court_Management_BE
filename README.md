@@ -10,8 +10,9 @@ A robust Node.js/Express REST API serving the Badminton Court Management System.
 ## 📖 Comprehensive Documentation
 For detailed system architecture, Database ERD (Entity Relationship Diagram), API Flowcharts, and full project descriptions, please visit our **[Notion Workspace](https://app.notion.com/p/Badminton-Court-Management-System-3849f49bca6d8032a1b6d16c2a71ce08?source=copy_link)**.
 
-## 🌐 Live API Endpoint
-**[https://badminton-court-management-be.onrender.com/api/v1](https://badminton-court-management-be.onrender.com/api/v1)**
+## 🌐 Live API & Documentation
+- **Base Endpoint**: **[https://badminton-court-management-be.onrender.com/api/v1](https://badminton-court-management-be.onrender.com/api/v1)**
+- **Swagger API Docs**: **[https://badminton-court-management-be.onrender.com/api-docs](https://badminton-court-management-be.onrender.com/api-docs)**
 
 ## 🚀 Features
 

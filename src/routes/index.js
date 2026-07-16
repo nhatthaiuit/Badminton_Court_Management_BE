@@ -15,6 +15,9 @@ const statsRoutes = require("./stats");
 const paymentRoutes = require("./paymentRoutes");
 
 // Mount sub-routers onto their respective path prefixes
+router.get("/", (req, res) => {
+  res.json({ success: true, message: "Welcome to BCMS API v1. Docs at /api-docs" });
+});
 router.use("/auth", authRoutes);        // Authentication: login, register, profile
 router.use("/courts", courtRoutes);     // Court management: CRUD operations
 router.use("/bookings", bookingRoutes); // Booking management: create, update, cancel
