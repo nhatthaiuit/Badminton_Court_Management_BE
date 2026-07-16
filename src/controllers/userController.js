@@ -14,7 +14,7 @@ const { asyncHandler, successResponse, createError } = require("../utils/helpers
  */
 const getAllUsers = asyncHandler(async (req, res) => {
   const [users] = await pool.query(
-    "SELECT user_id, full_name, phone, role, created_at FROM users ORDER BY created_at DESC"
+    "SELECT user_id, full_name, email, phone, role, created_at FROM users ORDER BY created_at DESC"
   );
   res.json(successResponse("Users retrieved", users, { total: users.length }));
 });
