@@ -27,6 +27,15 @@ const options = {
         description: "Current Server",
       },
     ],
+    // Explicitly define tags to control the display order in Swagger UI
+    tags: [
+      { name: "Authentication", description: "User registration, login, and profile management" },
+      { name: "Users", description: "User account management (Admin/Owner only)" },
+      { name: "Courts", description: "Badminton court management" },
+      { name: "Bookings", description: "Court booking management" },
+      { name: "Payments", description: "Payment processing simulation" },
+      { name: "Statistics", description: "Dashboard analytics and revenue reporting" }
+    ],
     // Define reusable security scheme for JWT Bearer authentication
     components: {
       securitySchemes: {
