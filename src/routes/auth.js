@@ -133,9 +133,9 @@ router.post("/login", loginValidation, login);
  * /auth/profile:
  *   get:
  *     summary: Get the current authenticated user's profile
- *     tags: [Auth]
+ *     tags: [Authentication]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Successfully retrieved user profile
@@ -147,7 +147,8 @@ router.get("/profile", authenticate, getProfile);
  * /auth/forgot-password:
  *   post:
  *     summary: Request password reset
- *     tags: [Auth]
+ *     tags: [Authentication]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -170,7 +171,8 @@ router.post("/forgot-password", forgotPasswordValidation, forgotPassword);
  * /auth/reset-password:
  *   post:
  *     summary: Reset password using token
- *     tags: [Auth]
+ *     tags: [Authentication]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
