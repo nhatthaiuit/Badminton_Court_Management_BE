@@ -26,7 +26,7 @@ const { authenticate, authorize } = require("../middlewares/auth");
  *       200:
  *         description: Dashboard overview data
  */
-router.get("/overview", authenticate, statsController.getOverview);
+router.get("/overview", authenticate, authorize("admin", "owner", "staff"), statsController.getOverview);
 
 /**
  * @swagger
@@ -70,6 +70,6 @@ router.get("/revenue", authenticate, authorize("admin", "owner"), statsControlle
  *       200:
  *         description: Occupancy data per court
  */
-router.get("/court-occupancy", authenticate, statsController.getCourtOccupancy);
+router.get("/court-occupancy", authenticate, authorize("admin", "owner", "staff"), statsController.getCourtOccupancy);
 
 module.exports = router;

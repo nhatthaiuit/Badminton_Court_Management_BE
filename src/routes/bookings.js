@@ -151,7 +151,7 @@ router.post("/", authenticate, bookingValidation, bookingController.createBookin
  *       200:
  *         description: Status updated
  */
-router.patch("/:id/status", authenticate, bookingController.updateBookingStatus);
+router.patch("/:id/status", authenticate, authorize("admin", "owner", "staff"), bookingController.updateBookingStatus);
 
 /**
  * @swagger
