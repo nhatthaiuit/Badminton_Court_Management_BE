@@ -14,6 +14,10 @@ For detailed system architecture, Database ERD (Entity Relationship Diagram), AP
 - **Base Endpoint**: **[https://badminton-court-management-be.onrender.com/api/v1](https://badminton-court-management-be.onrender.com/api/v1)**
 - **Swagger API Docs**: **[https://badminton-court-management-be.onrender.com/api-docs](https://badminton-court-management-be.onrender.com/api-docs)**
 
+### 🔐 Test Accounts (For Recruiters/Testers)
+- **Admin**: `nhatthaiuit@gmail.com` / `Admin@123`
+- **Customer**: Feel free to register a new account via the `/auth/register` API.
+
 ## 🚀 Features
 
 - **Double-Booking Prevention**: Advanced MySQL queries to prevent overlapping time slots even with concurrent requests.
