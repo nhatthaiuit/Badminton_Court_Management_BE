@@ -44,13 +44,18 @@ const register = asyncHandler(async (req, res) => {
     throw createError("Email must end with @gmail.com", 400);
   }
 
-  // Check if phone is already registered
+  // Check if phone or email is already registered
   const [existing] = await pool.query(
-    "SELECT user_id FROM users WHERE phone = ?",
-    [phone]
+    "SELECT user_id, phone, email FROM users WHERE phone = ? OR email = ?",
+    [phone, email]
   );
   if (existing.length > 0) {
-    throw createError("Phone number is already registered.", 400);
+    if (existing[0].phone === phone) {
+      throw createError("Phone number is already registered.", 400);
+    }
+    if (existing[0].email === email) {
+      throw createError("Email is already registered.", 400);
+    }
   }
 
   // Hash password with bcrypt (salt rounds = 12 for security)
