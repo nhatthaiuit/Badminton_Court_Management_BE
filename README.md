@@ -15,7 +15,7 @@ For detailed system architecture, Database ERD (Entity Relationship Diagram), AP
 - **Swagger API Docs**: **[https://badminton-court-management-be.onrender.com/api-docs](https://badminton-court-management-be.onrender.com/api-docs)**
 
 ### 🔐 Test Accounts (For Recruiters/Testers)
-- **Admin**: `nhatthaiuit@gmail.com` / `Admin@123`
+- **Admin**: `0388874855` / `123456`
 - **Customer**: Feel free to register a new account via the `/auth/register` API.
 
 ## 🚀 Features
