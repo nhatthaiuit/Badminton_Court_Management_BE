@@ -153,49 +153,4 @@ router.post("/", authenticate, bookingValidation, bookingController.createBookin
  */
 router.patch("/:id/status", authenticate, authorize("admin", "owner", "staff"), bookingController.updateBookingStatus);
 
-/**
- * @swagger
- * /bookings/{id}/cancel:
- *   patch:
- *     summary: Cancel a booking and provide refund account info (Customer only)
- *     tags: [Bookings]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refund_account:
- *                 type: string
- *     responses:
- *       200:
- *         description: Booking cancelled/refunding
- */
-router.patch("/:id/cancel", authenticate, authorize("customer"), bookingController.cancelBooking);
-
-/**
- * @swagger
- * /bookings/{id}/refund:
- *   post:
- *     summary: Process refund for a cancelled booking (Admin/Owner only)
- *     tags: [Bookings]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Refund processed
- */
-router.post("/:id/refund", authenticate, authorize("admin", "owner"), bookingController.processRefund);
-
 module.exports = router;
