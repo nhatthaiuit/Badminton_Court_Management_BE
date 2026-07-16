@@ -35,6 +35,32 @@ router.get("/", authenticate, authorize("admin", "owner", "staff"), userControll
  *   post:
  *     summary: Create a user with role check
  *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - full_name
+ *               - phone
+ *               - password
+ *               - role
+ *             properties:
+ *               full_name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [admin, owner, staff, customer]
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request
  */
 router.post("/", authenticate, authorize("admin", "owner", "staff"), userController.createUser);
 
@@ -64,6 +90,29 @@ router.get("/:id", authenticate, authorize("admin"), userController.getUserById)
  *   patch:
  *     summary: Update user role
  *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [admin, owner, staff, customer]
+ *     responses:
+ *       200:
+ *         description: Role updated
+ *       404:
+ *         description: User not found
  */
 router.patch("/:id", authenticate, authorize("admin", "owner"), userController.updateUserRole);
 
@@ -73,6 +122,30 @@ router.patch("/:id", authenticate, authorize("admin", "owner"), userController.u
  *   put:
  *     summary: Update user info
  *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               full_name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated
+ *       404:
+ *         description: User not found
  */
 router.put("/:id", authenticate, authorize("admin", "owner", "staff"), userController.updateUser);
 
