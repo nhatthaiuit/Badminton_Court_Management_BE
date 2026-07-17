@@ -16,6 +16,18 @@ const { validationResult } = require("express-validator");
 const getAllBookings = asyncHandler(async (req, res) => {
   const { date, court_id, status } = req.query;
 
+  // ── AUTO-CANCEL TIMED OUT BOOKINGS (15 MINS) ──
+  const [cancelResult] = await pool.query(`
+    UPDATE bookings 
+    SET status = 'cancelled' 
+    WHERE status = 'pending' 
+      AND created_at < NOW() - INTERVAL 15 MINUTE
+  `);
+  if (cancelResult.affectedRows > 0) {
+    const io = req.app.get("io");
+    if (io) io.emit("schedule_updated");
+  }
+
   let query = `
     SELECT 
       b.*,
@@ -56,6 +68,18 @@ const getAllBookings = asyncHandler(async (req, res) => {
  */
 const getBookingById = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  // ── AUTO-CANCEL TIMED OUT BOOKINGS (15 MINS) ──
+  const [cancelResult] = await pool.query(`
+    UPDATE bookings 
+    SET status = 'cancelled' 
+    WHERE status = 'pending' 
+      AND created_at < NOW() - INTERVAL 15 MINUTE
+  `);
+  if (cancelResult.affectedRows > 0) {
+    const io = req.app.get("io");
+    if (io) io.emit("schedule_updated");
+  }
 
   const [bookings] = await pool.query(
     `SELECT 
