@@ -36,6 +36,24 @@ const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
     console.log("✅ MySQL Database connected successfully");
+    
+    // Auto-migration for missing price_per_hour column
+    try {
+      const [cols] = await connection.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+          AND TABLE_NAME = 'courts' 
+          AND COLUMN_NAME = 'price_per_hour'
+      `);
+      if (cols.length === 0) {
+        await connection.query(`ALTER TABLE courts ADD COLUMN price_per_hour DECIMAL(10,2) NOT NULL DEFAULT 100000.00`);
+        console.log("✅ Auto-migrated: Added missing column 'price_per_hour' to 'courts' table");
+      }
+    } catch (migErr) {
+      console.error("⚠️ Auto-migration failed:", migErr.message);
+    }
+
     connection.release(); // Always release back to pool
   } catch (error) {
     console.error("❌ Failed to connect to MySQL:", error.message);
