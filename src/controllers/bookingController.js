@@ -85,7 +85,8 @@ const getBookingById = asyncHandler(async (req, res) => {
     `SELECT 
         b.*,
         c.name AS court_name,
-        p.amount, p.payment_method, p.payment_status, p.paid_at
+        p.amount, p.payment_method, p.payment_status, p.paid_at,
+        TIMESTAMPDIFF(SECOND, NOW(), b.created_at + INTERVAL 15 MINUTE) AS remaining_seconds
      FROM bookings b
      LEFT JOIN courts c ON b.court_id = c.court_id
      LEFT JOIN payments p ON b.booking_id = p.booking_id
