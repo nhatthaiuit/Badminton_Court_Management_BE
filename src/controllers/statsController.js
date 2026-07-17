@@ -143,8 +143,8 @@ const getRevenue = asyncHandler(async (req, res) => {
 const getCourtOccupancy = asyncHandler(async (req, res) => {
   const date = req.query.date || new Date().toISOString().split("T")[0];
 
-  // Operating hours: 05:00 – 23:30 = 18.5 available hours per court
-  const OPERATING_HOURS = 18.5;
+  // Operating hours: 05:00 – 24:00 = 19 available hours per court
+  const OPERATING_HOURS = 19;
 
   const [rows] = await pool.query(
     `SELECT 
