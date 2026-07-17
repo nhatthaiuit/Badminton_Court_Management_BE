@@ -24,6 +24,8 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  // Ensure consistency with Vietnam timezone
+  timezone: '+07:00',
   // Return dates as strings to avoid timezone conversion issues
   dateStrings: true,
 });
