@@ -97,6 +97,21 @@ const updateCourt = asyncHandler(async (req, res) => {
   const updates = [];
   const params = [];
 
+  // Prevent deactivating if there are upcoming active bookings
+  if (status && status !== 'active' && existing[0].status === 'active') {
+    const [upcomingBookings] = await pool.query(
+      "SELECT booking_id FROM bookings WHERE court_id = ? AND status IN ('pending', 'confirmed') AND (booking_date > CURDATE() OR (booking_date = CURDATE() AND start_time >= CURTIME()))",
+      [id]
+    );
+
+    if (upcomingBookings.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Cannot change court status to ${status} because there are ${upcomingBookings.length} upcoming active bookings.` 
+      });
+    }
+  }
+
   if (name !== undefined) { updates.push("name = ?"); params.push(name); }
   if (status !== undefined) { updates.push("status = ?"); params.push(status); }
   if (price_per_hour !== undefined) { updates.push("price_per_hour = ?"); params.push(price_per_hour); }
