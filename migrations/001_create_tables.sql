@@ -34,17 +34,7 @@ CREATE TABLE IF NOT EXISTS courts (
   created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
--- ── Booking Details (time slot pricing) ────────────────────────────────────
--- Defines the price for each time slot on each court.
--- This supports variable pricing (e.g. peak hours are more expensive).
-CREATE TABLE IF NOT EXISTS booking_details (
-  detail_id   INT     AUTO_INCREMENT PRIMARY KEY,
-  court_id    INT     NOT NULL,
-  start_time  TIME    NOT NULL,
-  end_time    TIME    NOT NULL,
-  price       DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-  FOREIGN KEY (court_id) REFERENCES courts(court_id) ON DELETE CASCADE
-);
+
 
 -- ── Bookings ───────────────────────────────────────────────────────────────
 -- Core table: records each court reservation.
@@ -101,12 +91,4 @@ INSERT IGNORE INTO courts (name, status) VALUES
   ('Court 3', 'available'),
   ('Court 4', 'available');
 
--- Sample time slot pricing (100,000 VND/hour for all courts)
-INSERT IGNORE INTO booking_details (court_id, start_time, end_time, price) VALUES
-  (1, '09:00:00', '10:00:00', 100000),
-  (1, '10:00:00', '11:00:00', 100000),
-  (1, '11:00:00', '12:00:00', 100000),
-  (2, '09:00:00', '10:00:00', 100000),
-  (2, '10:00:00', '11:00:00', 100000),
-  (3, '09:00:00', '10:00:00', 120000), -- Peak pricing
-  (4, '09:00:00', '10:00:00', 120000);
+
