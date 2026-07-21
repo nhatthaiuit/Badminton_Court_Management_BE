@@ -15,8 +15,8 @@ USE bcms_db;
 CREATE TABLE IF NOT EXISTS users (
   user_id    INT          AUTO_INCREMENT PRIMARY KEY,
   full_name  VARCHAR(100) NOT NULL,
-  phone      VARCHAR(15)  NOT NULL,
-  email      VARCHAR(100) NOT NULL UNIQUE,
+  phone      VARCHAR(15)  NOT NULL UNIQUE,
+  email      VARCHAR(100) NOT NULL,
   password   VARCHAR(255) NOT NULL,             -- bcrypt-hashed
   role       ENUM('admin', 'staff', 'owner', 'customer') NOT NULL DEFAULT 'customer',
   reset_token VARCHAR(255) NULL,
